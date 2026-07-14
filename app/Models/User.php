@@ -2,48 +2,75 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $primaryKey = 'id_user';
+
     protected $fillable = [
-        'name',
+        'prenom',
+        'nom',
         'email',
         'password',
+        'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ================= RELATIONS =================
+
+    // 1 USER --- 0,1 ENTREPRISE (si role = entreprise)
+    public function entreprise()
+    {
+        return $this->hasOne(Entreprise::class, 'id_user', 'id_user');
+    }
+
+    // 1 USER --- 0,n CANDIDATURE (si role = candidat)
+    public function candidatures()
+    {
+        return $this->hasMany(Candidature::class, 'id_user', 'id_user');
+    }
+
+    // USER 0,n --- 0,n COMPETENCE (many-to-many via user_competence)
+    public function competences()
+    {
+        return $this->belongsToMany(
+            Competence::class,
+            'user_competence',
+            'id_user',
+            'id_competence'
+        );
+    }
+
+    // ================= HELPERS RÔLES =================
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isEntreprise(): bool
+    {
+        return $this->role === 'entreprise';
+    }
+
+    public function isCandidat(): bool
+    {
+        return $this->role === 'candidat';
     }
 }
