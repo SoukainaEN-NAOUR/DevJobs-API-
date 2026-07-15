@@ -7,7 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     /**
@@ -57,4 +57,12 @@ class AuthController extends Controller
             'token' => $token,
         ], 200);
     }
-}
+
+public function logout(Request $request)
+{
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json([
+        'message' => 'Déconnexion réussie.'
+    ]);
+}}
