@@ -1,0 +1,21 @@
+$kind: http-request
+name: " http://127.0.0.1:8000/api/logout"
+description: ""
+url: " http://127.0.0.1:8000/api/logout"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"soukaina@test.com\",\r
+
+    \    \"password\": \"password123\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: 2|jdEe8iZRPSGy3k9CCdWrBi5fDZa3jmuv34jygvSXce32b310
+order: 1784143118828

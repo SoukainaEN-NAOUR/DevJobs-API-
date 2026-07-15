@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEntrepriseRequest extends FormRequest
@@ -12,18 +11,30 @@ class UpdateEntrepriseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * Validation rules.
      */
     public function rules(): array
     {
         return [
-            //
+            'nom_entreprise' => 'sometimes|required|string|max:100',
+            'secteur' => 'sometimes|required|string|max:100',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|string|max:255',
+        ];
+    }
+
+    /**
+     * Messages personnalisés.
+     */
+    public function messages(): array
+    {
+        return [
+            'nom_entreprise.required' => 'Le nom de l\'entreprise est obligatoire.',
+            'secteur.required' => 'Le secteur est obligatoire.',
         ];
     }
 }
