@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -31,5 +30,31 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
         ], 201);
+    }
+
+    /**
+     * Connexion
+     */
+    public function login(LoginRequest $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Email ou mot de passe incorrect.'
+            ], 401);
+        }
+
+        // (Optionnel) supprimer les anciens tokens
+        $user->tokens()->delete();
+
+        // Créer un nouveau token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Connexion réussie.',
+            'user' => $user,
+            'token' => $token,
+        ], 200);
     }
 }
