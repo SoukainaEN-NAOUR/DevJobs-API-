@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Candidature extends Model
 {
+    use HasFactory;
+
     protected $primaryKey = 'id_candidature';
 
     protected $fillable = [
@@ -22,15 +25,11 @@ class Candidature extends Model
         ];
     }
 
-    // ================= RELATIONS =================
-
-    // CANDIDATURE 1,1 --- 0,n USER (candidat)
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    // CANDIDATURE 1,1 --- 0,n OFFRE
     public function offre()
     {
         return $this->belongsTo(Offre::class, 'id_offre', 'id_offre');
