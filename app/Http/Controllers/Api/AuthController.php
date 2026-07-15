@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * Inscription
+     */
     public function register(StoreUserRequest $request)
     {
         $user = User::create([
