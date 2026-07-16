@@ -18,14 +18,15 @@ class UpdateEntrepriseRequest extends FormRequest
      * Validation rules.
      */
     public function rules(): array
-    {
-        return [
-            'nom_entreprise' => 'sometimes|required|string|max:100',
-            'secteur' => 'sometimes|required|string|max:100',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|string|max:255',
-        ];
-    }
+{
+    return [
+        'nom_entreprise' => 'sometimes|required|string|max:100',
+        'secteur' => 'sometimes|required|string|max:50',
+        'description' => 'sometimes|required|string|max:255',
+        'logo' => 'nullable|string|max:255',
+        'id_user' => 'sometimes|required|exists:users,id_user',
+    ];
+}
 
     /**
      * Messages personnalisés.

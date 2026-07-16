@@ -18,14 +18,15 @@ class StoreEntrepriseRequest extends FormRequest
      * Validation rules.
      */
     public function rules(): array
-    {
-        return [
-            'nom_entreprise' => 'required|string|max:100',
-            'secteur' => 'required|string|max:100',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|string|max:255',
-        ];
-    }
+{
+    return [
+        'nom_entreprise' => 'required|string|max:100',
+        'secteur' => 'required|string|max:50',
+        'description' => 'required|string|max:255',
+        'logo' => 'nullable|string|max:255',
+        'id_user' => 'required|exists:users,id_user',
+    ];
+}
 
     /**
      * Messages personnalisés.
@@ -36,5 +37,4 @@ class StoreEntrepriseRequest extends FormRequest
             'nom_entreprise.required' => 'Le nom de l\'entreprise est obligatoire.',
             'secteur.required' => 'Le secteur est obligatoire.',
         ];
-    }
-}
+    }}
