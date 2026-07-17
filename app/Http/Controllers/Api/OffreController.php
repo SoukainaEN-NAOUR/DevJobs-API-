@@ -3,47 +3,93 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreOffreRequest;
+use App\Http\Requests\UpdateOffreRequest;
+use App\Models\Offre;
 
 class OffreController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Liste des offres.
      */
     public function index()
     {
-        //
+        return response()->json([
+            'message' => 'Liste des offres.',
+            'data' => Offre::all()
+        ], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Afficher une offre.
      */
-    public function store(Request $request)
+    public function show($id)
     {
-        //
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json([
+                'message' => 'Offre introuvable.'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Offre trouvée.',
+            'data' => $offre
+        ], 200);
     }
 
     /**
-     * Display the specified resource.
+     * Ajouter une offre.
      */
-    public function show(string $id)
+    public function store(StoreOffreRequest $request)
     {
-        //
+        $offre = Offre::create($request->validated());
+
+        return response()->json([
+            'message' => 'Offre créée avec succès.',
+            'data' => $offre
+        ], 201);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Modifier une offre.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateOffreRequest $request, $id)
     {
-        //
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json([
+                'message' => 'Offre introuvable.'
+            ], 404);
+        }
+
+        $offre->update($request->validated());
+
+        return response()->json([
+            'message' => 'Offre modifiée avec succès.',
+            'data' => $offre
+        ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Supprimer une offre.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json([
+                'message' => 'Offre introuvable.'
+            ], 404);
+        }
+
+        $offre->delete();
+
+        return response()->json([
+            'message' => 'Offre supprimée avec succès.'
+        ], 200);
     }
 }

@@ -91,6 +91,5 @@ class EntrepriseController extends Controller
         return response()->json([
             'message' => 'Entreprise supprimée avec succès.'
         ], 200);
-        
-    }}
-    
+    }
+}
