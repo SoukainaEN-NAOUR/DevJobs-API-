@@ -11,6 +11,7 @@ class Entreprise extends Model
 
     protected $primaryKey = 'id_entreprise';
 
+
     protected $fillable = [
         'nom_entreprise',
         'secteur',
@@ -19,13 +20,32 @@ class Entreprise extends Model
         'id_user',
     ];
 
+
+
+    /**
+     * Une entreprise appartient à un utilisateur.
+     */
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user', 'id_user');
+        return $this->belongsTo(
+            User::class,
+            'id_user',
+            'id_user'
+        );
     }
 
+
+
+    /**
+     * Une entreprise possède plusieurs offres.
+     */
     public function offres()
     {
-        return $this->hasMany(Offre::class, 'id_entreprise', 'id_entreprise');
+        return $this->hasMany(
+            Offre::class,
+            'id_entreprise',
+            'id_entreprise'
+        );
     }
+
 }

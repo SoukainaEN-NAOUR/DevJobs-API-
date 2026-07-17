@@ -9,13 +9,20 @@ class Competence extends Model
 {
     use HasFactory;
 
+
     protected $primaryKey = 'id_competence';
+
 
     protected $fillable = [
         'nom',
         'description',
     ];
 
+
+
+    /**
+     * Compétence liée aux offres.
+     */
     public function offres()
     {
         return $this->belongsToMany(
@@ -26,6 +33,11 @@ class Competence extends Model
         );
     }
 
+
+
+    /**
+     * Compétence liée aux utilisateurs.
+     */
     public function users()
     {
         return $this->belongsToMany(
@@ -35,4 +47,5 @@ class Competence extends Model
             'id_user'
         );
     }
+
 }
