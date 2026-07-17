@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -14,22 +15,17 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prenom' => 'required|string|max:255',
-            'nom' => 'required|string|max:255',
-            'email' => 'required|email',
-            'role' => 'required|in:admin,entreprise,candidat',
-        ];
-    }
+            'prenom' => 'sometimes|string|max:255',
+            'nom' => 'sometimes|string|max:255',
 
-    public function messages(): array
-    {
-        return [
-            'prenom.required' => 'Le prénom est obligatoire.',
-            'nom.required' => 'Le nom est obligatoire.',
-            'email.required' => 'L\'email est obligatoire.',
-            'email.email' => 'Email invalide.',
-            'role.required' => 'Le rôle est obligatoire.',
-            'role.in' => 'Le rôle est invalide.',
+            'email' => [
+                'sometimes',
+                'email',
+                Rule::unique('users', 'email')
+                    ->ignore($this->id, 'id_user'),
+            ],
+
+            'role' => 'sometimes|in:admin,entreprise,candidat',
         ];
     }
 }

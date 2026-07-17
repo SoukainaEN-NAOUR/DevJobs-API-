@@ -9,7 +9,10 @@ class Offre extends Model
 {
     use HasFactory;
 
+
     protected $primaryKey = 'id_offre';
+
+
 
     protected $fillable = [
         'titre',
@@ -18,16 +21,39 @@ class Offre extends Model
         'id_entreprise',
     ];
 
+
+
+    /**
+     * Offre appartient à une entreprise
+     */
     public function entreprise()
     {
-        return $this->belongsTo(Entreprise::class, 'id_entreprise', 'id_entreprise');
+        return $this->belongsTo(
+            Entreprise::class,
+            'id_entreprise',
+            'id_entreprise'
+        );
     }
 
+
+
+    /**
+     * Offre possède plusieurs candidatures
+     */
     public function candidatures()
     {
-        return $this->hasMany(Candidature::class, 'id_offre', 'id_offre');
+        return $this->hasMany(
+            Candidature::class,
+            'id_offre',
+            'id_offre'
+        );
     }
 
+
+
+    /**
+     * Offre possède plusieurs compétences
+     */
     public function competences()
     {
         return $this->belongsToMany(

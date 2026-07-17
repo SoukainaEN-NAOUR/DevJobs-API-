@@ -9,87 +9,180 @@ use App\Models\Competence;
 
 class CompetenceController extends Controller
 {
+
     /**
-     * Liste des compétences.
+     * Liste des compétences
      */
     public function index()
     {
+        $competences = Competence::withCount([
+            'offres',
+            'users'
+        ])->get();
+
+
         return response()->json([
-            'message' => 'Liste des compétences.',
-            'data' => Competence::all()
-        ], 200);
+            'message'=>'Liste des compétences.',
+            'data'=>$competences
+        ],200);
     }
 
+
+
+
+
+
+
     /**
-     * Afficher une compétence.
+     * Afficher une compétence
      */
     public function show($id)
     {
-        $competence = Competence::find($id);
 
-        if (!$competence) {
+        $competence = Competence::with([
+            'offres',
+            'users'
+        ])
+        ->find($id);
+
+
+
+        if(!$competence){
+
             return response()->json([
-                'message' => 'Compétence introuvable.'
-            ], 404);
+                'message'=>'Compétence introuvable.'
+            ],404);
+
         }
 
+
+
+
+
         return response()->json([
-            'message' => 'Compétence trouvée.',
-            'data' => $competence
-        ], 200);
+            'message'=>'Compétence trouvée.',
+            'data'=>$competence
+        ],200);
+
     }
 
+
+
+
+
+
+
+
+
     /**
-     * Ajouter une compétence.
+     * Créer une compétence (Admin)
      */
     public function store(StoreCompetenceRequest $request)
     {
-        $competence = Competence::create($request->validated());
+
+        $competence = Competence::create(
+            $request->validated()
+        );
+
+
 
         return response()->json([
-            'message' => 'Compétence créée avec succès.',
-            'data' => $competence
-        ], 201);
+            'message'=>'Compétence créée avec succès.',
+            'data'=>$competence
+        ],201);
+
     }
 
+
+
+
+
+
+
+
+
     /**
-     * Modifier une compétence.
+     * Modifier une compétence (Admin)
      */
-    public function update(UpdateCompetenceRequest $request, $id)
+    public function update(UpdateCompetenceRequest $request,$id)
     {
+
         $competence = Competence::find($id);
 
-        if (!$competence) {
+
+
+        if(!$competence){
+
             return response()->json([
-                'message' => 'Compétence introuvable.'
-            ], 404);
+                'message'=>'Compétence introuvable.'
+            ],404);
+
         }
 
-        $competence->update($request->validated());
+
+
+
+
+        $competence->update(
+            $request->validated()
+        );
+
+
+
+
 
         return response()->json([
-            'message' => 'Compétence modifiée avec succès.',
-            'data' => $competence
-        ], 200);
+            'message'=>'Compétence modifiée avec succès.',
+            'data'=>$competence
+        ],200);
+
     }
 
+
+
+
+
+
+
+
+
     /**
-     * Supprimer une compétence.
+     * Supprimer une compétence (Admin)
      */
     public function destroy($id)
     {
+
         $competence = Competence::find($id);
 
-        if (!$competence) {
+
+
+        if(!$competence){
+
             return response()->json([
-                'message' => 'Compétence introuvable.'
-            ], 404);
+                'message'=>'Compétence introuvable.'
+            ],404);
+
         }
+
+
+
+
+
+        // supprimer les relations many-to-many avant suppression
+        $competence->offres()->detach();
+        $competence->users()->detach();
+
+
 
         $competence->delete();
 
+
+
+
         return response()->json([
-            'message' => 'Compétence supprimée avec succès.'
-        ], 200);
+            'message'=>'Compétence supprimée avec succès.'
+        ],200);
+
     }
+
 }

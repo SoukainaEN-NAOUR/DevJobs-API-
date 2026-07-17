@@ -1,59 +1,592 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DevJobs API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Plateforme de recrutement Tech
 
-## About Laravel
+**Développeuse : Soukaina EN-NAOUR**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# Description du projet
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+DevJobs est une API REST développée avec Laravel pour une plateforme de mise en relation entre développeurs et entreprises.
 
-## Learning Laravel
+L'objectif de cette application est de permettre :
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Aux candidats de créer un compte, gérer leurs compétences, rechercher des offres et envoyer des candidatures.
+- Aux entreprises de créer leur profil, publier des offres d'emploi et gérer les candidatures reçues.
+- Aux administrateurs de superviser les utilisateurs, les offres, les compétences et les statistiques globales.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Le projet respecte une architecture Laravel basée sur MVC avec une gestion des rôles et des permissions.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Technologies utilisées
 
-### Premium Partners
+- PHP 8.2
+- Laravel 12
+- Laravel Sanctum
+- MySQL
+- Eloquent ORM
+- REST API
+- Postman
+- Git / GitHub
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+# Installation du projet
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 1. Cloner le projet
 
-## Code of Conduct
+```bash
+git clone https://github.com/Soukaenn/DevJobs-Git.git
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 2. Installer les dépendances
 
-## Security Vulnerabilities
+```bash
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 3. Configuration du fichier .env
 
-## License
+Créer le fichier :
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+.env
+```
+
+Configurer la base de données :
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=DevJobs
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+## 4. Générer la clé Laravel
+
+```bash
+php artisan key:generate
+```
+
+## 5. Migration de la base de données
+
+```bash
+php artisan migrate
+```
+
+## 6. Lancer le serveur
+
+```bash
+php artisan serve
+```
+
+L'application sera disponible sur :
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+# Architecture du projet
+
+Le projet suit l'architecture MVC Laravel :
+
+```
+app
+│
+├── Models
+│
+├── Http
+│   ├── Controllers
+│   │       └── API
+│   │
+│   ├── Requests
+│   │
+│   └── Middleware
+│
+database
+│
+├── migrations
+├── factories
+└── seeders
+
+routes
+│
+└── api.php
+```
+
+---
+
+# Modèle de données
+
+## User
+
+Un utilisateur possède un rôle :
+
+- candidat
+- entreprise
+- admin
+
+
+Relations :
+
+- Un candidat possède plusieurs candidatures.
+- Un candidat possède plusieurs compétences.
+- Un utilisateur entreprise possède un profil entreprise.
+
+---
+
+## Entreprise
+
+Une entreprise contient :
+
+- nom entreprise
+- secteur
+- description
+- logo
+
+
+Relations :
+
+- Une entreprise appartient à un utilisateur.
+- Une entreprise possède plusieurs offres.
+
+---
+
+## Offre
+
+Une offre contient :
+
+- titre
+- description
+- type contrat
+
+
+Relations :
+
+- Une offre appartient à une entreprise.
+- Une offre possède plusieurs candidatures.
+- Une offre possède plusieurs compétences.
+
+---
+
+## Candidature
+
+Une candidature contient :
+
+- statut
+    - en_attente
+    - acceptee
+    - refusee
+
+- date_candidature
+
+
+Relations :
+
+- Une candidature appartient à un candidat.
+- Une candidature appartient à une offre.
+
+
+Règle :
+
+Un candidat ne peut pas postuler plusieurs fois à la même offre.
+
+---
+
+## Compétence
+
+Exemples :
+
+- Laravel
+- PHP
+- React
+- JavaScript
+
+
+Relations Many To Many :
+
+```
+User <----> Competence
+
+Offre <----> Competence
+```
+
+---
+
+# Base de données
+
+Tables utilisées :
+
+```
+users
+
+entreprises
+
+offres
+
+candidatures
+
+competences
+
+user_competence
+
+offre_competence
+
+personal_access_tokens
+```
+
+---
+
+# Authentification
+
+L'API utilise Laravel Sanctum.
+
+Fonctionnalités :
+
+- Register
+- Login
+- Logout
+- Protection des routes API
+
+
+Routes :
+
+```
+POST /api/register
+
+POST /api/login
+
+POST /api/logout
+```
+
+---
+
+# Gestion des rôles
+
+Un middleware personnalisé RoleMiddleware contrôle les accès.
+
+Les rôles disponibles :
+
+```
+admin
+
+entreprise
+
+candidat
+```
+
+Exemple :
+
+```php
+Route::middleware(['auth:sanctum','role:admin'])
+```
+
+---
+
+# Endpoints API
+
+## Authentification
+
+### Register
+
+```
+POST /api/register
+```
+
+### Login
+
+```
+POST /api/login
+```
+
+### Logout
+
+```
+POST /api/logout
+```
+
+---
+
+# Offres
+
+## Liste des offres
+
+```
+GET /api/offres
+```
+
+## Détails d'une offre
+
+```
+GET /api/offres/{id}
+```
+
+## Créer une offre
+
+```
+POST /api/offres
+```
+
+Accès :
+
+Entreprise
+
+
+## Modifier une offre
+
+```
+PUT /api/offres/{id}
+```
+
+## Supprimer une offre
+
+```
+DELETE /api/offres/{id}
+```
+
+---
+
+# Recherche des offres
+
+```
+GET /api/search/offres
+```
+
+Recherche par :
+
+- titre
+- entreprise
+- compétence
+
+
+Exemple :
+
+```
+/api/search/offres?titre=Laravel
+```
+
+---
+
+# Candidatures
+
+## Ajouter une candidature
+
+```
+POST /api/candidatures
+```
+
+Accès :
+
+Candidat
+
+
+## Voir les candidatures
+
+```
+GET /api/candidatures
+```
+
+Selon le rôle :
+
+- Candidat : ses candidatures
+- Entreprise : candidatures reçues
+- Admin : toutes les candidatures
+
+
+## Modifier une candidature
+
+```
+PUT /api/candidatures/{id}
+```
+
+## Supprimer une candidature
+
+```
+DELETE /api/candidatures/{id}
+```
+
+---
+
+# Gestion du statut
+
+Entreprise ou Admin :
+
+```
+PUT /api/candidatures/{id}/statut
+```
+
+Valeurs possibles :
+
+```
+en_attente
+
+acceptee
+
+refusee
+```
+
+---
+
+# Entreprises
+
+Créer :
+
+```
+POST /api/entreprises
+```
+
+Modifier :
+
+```
+PUT /api/entreprises/{id}
+```
+
+Supprimer :
+
+```
+DELETE /api/entreprises/{id}
+```
+
+Afficher :
+
+```
+GET /api/entreprises
+```
+
+---
+
+# Compétences
+
+Gestion réservée à l'administrateur.
+
+Routes :
+
+```
+GET /api/competences
+
+POST /api/competences
+
+PUT /api/competences/{id}
+
+DELETE /api/competences/{id}
+```
+
+---
+
+# Administration
+
+L'administrateur peut :
+
+- gérer les utilisateurs
+- gérer les compétences
+- consulter les statistiques
+
+
+Statistiques :
+
+```
+GET /api/admin/statistiques
+```
+
+
+Informations retournées :
+
+- Nombre utilisateurs
+- Nombre candidats
+- Nombre entreprises
+- Nombre offres
+- Nombre compétences
+- Nombre candidatures
+- Statistiques des statuts
+
+---
+
+# Règles métier implémentées
+
+✔ Un candidat ne peut postuler qu'une seule fois à une offre.
+
+✔ Une entreprise ne peut modifier ou supprimer que ses propres offres.
+
+✔ Un administrateur possède tous les droits.
+
+✔ Le statut d'une candidature est modifiable uniquement par l'entreprise propriétaire ou l'administrateur.
+
+✔ La suppression d'une offre supprime automatiquement les candidatures liées grâce au cascade delete.
+
+✔ Les accès sont protégés avec Sanctum et Middleware.
+
+---
+
+# Tests réalisés avec Postman
+
+Tests effectués :
+
+- Inscription utilisateur
+- Connexion
+- Déconnexion
+- Création entreprise
+- Création offre
+- Modification offre
+- Suppression offre
+- Recherche offres
+- Ajout compétences
+- Candidature à une offre
+- Modification statut candidature
+- Gestion administrateur
+
+---
+
+# Structure des relations Eloquent
+
+## User
+
+```php
+hasOne(Entreprise)
+
+hasMany(Candidature)
+
+belongsToMany(Competence)
+```
+
+
+## Entreprise
+
+```php
+belongsTo(User)
+
+hasMany(Offre)
+```
+
+
+## Offre
+
+```php
+belongsTo(Entreprise)
+
+hasMany(Candidature)
+
+belongsToMany(Competence)
+```
+
+
+## Candidature
+
+```php
+belongsTo(User)
+
+belongsTo(Offre)
+```
+
+---
+
+# Auteur
+
+**Soukaina EN-NAOUR**
+
+Projet réalisé dans le cadre d'une formation Développement Web Full Stack Laravel / React.

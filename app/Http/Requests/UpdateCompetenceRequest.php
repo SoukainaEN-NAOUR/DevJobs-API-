@@ -16,24 +16,13 @@ class UpdateCompetenceRequest extends FormRequest
     {
         return [
             'nom' => [
-                'required',
+                'sometimes',
                 'string',
-                'max:50',
-                Rule::unique('competences', 'nom')->ignore(
-                    $this->route('id'),
-                    'id_competence'
-                ),
+                'max:255',
+                Rule::unique('competences', 'nom')
+                    ->ignore($this->id, 'id_competence'),
             ],
-            'description' => 'required|string|max:255',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'nom.required' => 'Le nom de la compétence est obligatoire.',
-            'nom.unique' => 'Cette compétence existe déjà.',
-            'description.required' => 'La description est obligatoire.',
+            'description' => 'sometimes|string',
         ];
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\EntrepriseController;
 use App\Http\Controllers\Api\OffreController;
 use App\Http\Controllers\Api\CompetenceController;
 use App\Http\Controllers\Api\CandidatureController;
-
+use App\Http\Controllers\Api\StatistiqueController;
 
 
 // ================= AUTH =================
@@ -20,22 +20,13 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 
-
 // ================= AUTHENTICATED =================
 
 Route::middleware('auth:sanctum')->group(function () {
 
-
     Route::post('/logout', [AuthController::class, 'logout']);
 
-
-
-    // User profile
-    Route::put('/users/{id}', [UserController::class, 'update']);
-
-
 });
-
 
 
 
@@ -47,21 +38,32 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
 
 
-    // Users management
+    // Users CRUD
 
     Route::get('/users', [UserController::class,'index']);
 
     Route::get('/users/{id}', [UserController::class,'show']);
 
+    Route::put('/users/{id}', [UserController::class,'update']);
+
     Route::delete('/users/{id}', [UserController::class,'destroy']);
 
 
 
-    // Competences management
+    // Competences CRUD
 
     Route::apiResource(
         'competences',
         CompetenceController::class
+    );
+
+
+
+    // Statistiques globales
+
+    Route::get(
+        '/admin/statistiques',
+        [StatistiqueController::class,'index']
     );
 
 
@@ -79,7 +81,7 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
 Route::middleware(['auth:sanctum','role:entreprise'])->group(function () {
 
 
-    // Entreprise
+    // Profil entreprise
 
     Route::post(
         '/entreprises',
@@ -101,8 +103,7 @@ Route::middleware(['auth:sanctum','role:entreprise'])->group(function () {
 
 
 
-
-    // Offres
+    // Offres CRUD
 
     Route::post(
         '/offres',
@@ -152,7 +153,7 @@ Route::middleware(['auth:sanctum','role:entreprise'])->group(function () {
 
 
 
-    // Modifier statut candidature
+    // Accepter / refuser candidature
 
     Route::put(
         '/candidatures/{id}/statut',
@@ -174,18 +175,22 @@ Route::middleware(['auth:sanctum','role:entreprise'])->group(function () {
 Route::middleware(['auth:sanctum','role:candidat'])->group(function () {
 
 
-    // Candidatures
+    // Postuler à une offre (selon brief)
 
     Route::post(
-        '/candidatures',
+        '/offres/{id}/candidatures',
         [CandidatureController::class,'store']
     );
 
+
+
+    // Voir mes candidatures
 
     Route::get(
         '/candidatures',
         [CandidatureController::class,'index']
     );
+
 
 
     Route::get(
@@ -194,10 +199,12 @@ Route::middleware(['auth:sanctum','role:candidat'])->group(function () {
     );
 
 
+
     Route::put(
         '/candidatures/{id}',
         [CandidatureController::class,'update']
     );
+
 
 
     Route::delete(
@@ -209,7 +216,7 @@ Route::middleware(['auth:sanctum','role:candidat'])->group(function () {
 
 
 
-    // User - Competences
+    // Ajouter / supprimer compétence
 
     Route::post(
         '/users/{idUser}/competences/{idCompetence}',
@@ -235,7 +242,7 @@ Route::middleware(['auth:sanctum','role:candidat'])->group(function () {
 // ================= PUBLIC =================
 
 
-// Voir les offres
+// Consulter offres
 
 Route::get(
     '/offres',
@@ -250,7 +257,7 @@ Route::get(
 
 
 
-// Recherche
+// Recherche offres
 
 Route::get(
     '/search/offres',
@@ -259,7 +266,7 @@ Route::get(
 
 
 
-// Voir entreprises
+// Consulter entreprises
 
 Route::get(
     '/entreprises',

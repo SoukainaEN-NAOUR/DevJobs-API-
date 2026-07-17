@@ -21,7 +21,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required|string|min:8',
         ];
     }
 
@@ -33,7 +33,9 @@ class LoginRequest extends FormRequest
         return [
             'email.required' => 'L\'email est obligatoire.',
             'email.email' => 'Veuillez saisir un email valide.',
+
             'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
         ];
     }
 }

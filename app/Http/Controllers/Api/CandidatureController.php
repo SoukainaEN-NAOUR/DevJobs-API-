@@ -3,30 +3,86 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCandidatureRequest;
-use App\Http\Requests\UpdateCandidatureRequest;
 use App\Models\Candidature;
 use Illuminate\Http\Request;
 
 class CandidatureController extends Controller
 {
 
-
     /**
-     * Liste des candidatures du candidat connecté.
+     * Liste des candidatures selon le rôle
      */
     public function index()
     {
+        $user = auth()->user();
 
-        $candidatures = Candidature::with('offre')
-            ->where('id_user', auth()->id())
+
+        // Admin voit toutes les candidatures
+        if ($user->isAdmin()) {
+
+            $candidatures = Candidature::with([
+                'user',
+                'offre.entreprise'
+            ])->get();
+
+
+        }
+        // Entreprise voit les candidatures reçues sur ses offres
+        elseif ($user->isEntreprise()) {
+
+
+            $entreprise = $user->entreprise;
+
+
+            if (!$entreprise) {
+
+                return response()->json([
+                    'message'=>'Entreprise introuvable.'
+                ],404);
+
+            }
+
+
+
+            $candidatures = Candidature::with([
+                'user',
+                'offre'
+            ])
+            ->whereHas('offre', function($query) use($entreprise){
+
+                $query->where(
+                    'id_entreprise',
+                    $entreprise->id_entreprise
+                );
+
+            })
             ->get();
 
 
+
+        }
+        // Candidat voit ses candidatures
+        else {
+
+
+            $candidatures = Candidature::with([
+                'offre.entreprise'
+            ])
+            ->where(
+                'id_user',
+                $user->id_user
+            )
+            ->get();
+
+
+        }
+
+
+
         return response()->json([
-            'message' => 'Liste des candidatures.',
-            'data' => $candidatures
-        ], 200);
+            'message'=>'Liste des candidatures.',
+            'data'=>$candidatures
+        ],200);
 
     }
 
@@ -35,92 +91,62 @@ class CandidatureController extends Controller
 
 
 
+
     /**
-     * Afficher une candidature.
+     * Afficher une candidature
      */
     public function show($id)
     {
 
-        $candidature = Candidature::with('offre')
-            ->where('id_user', auth()->id())
-            ->find($id);
+        $candidature = Candidature::with([
+            'user',
+            'offre.entreprise'
+        ])
+        ->find($id);
 
 
 
-        if (!$candidature) {
+        if(!$candidature){
 
             return response()->json([
-                'message' => 'Candidature introuvable.'
-            ], 404);
+                'message'=>'Candidature introuvable.'
+            ],404);
 
         }
 
 
 
-        return response()->json([
-            'message' => 'Candidature trouvée.',
-            'data' => $candidature
-        ], 200);
-
-    }
+        $user = auth()->user();
 
 
 
-
-
-
-
-
-    /**
-     * Ajouter une candidature.
-     */
-    public function store(StoreCandidatureRequest $request)
-    {
-
-        $data = $request->validated();
-
-
-        // candidat connecté
-        $data['id_user'] = auth()->id();
-
-
-        // statut automatique
-        $data['statut'] = 'en_attente';
-
-
-        // date automatique
-        $data['date_candidature'] = now();
-
-
-
-
-        // éviter candidature double
-        $exists = Candidature::where('id_user', auth()->id())
-            ->where('id_offre', $data['id_offre'])
-            ->exists();
-
-
-
-        if ($exists) {
+        if(
+            !$user->isAdmin()
+            &&
+            $candidature->id_user != $user->id_user
+            &&
+            (
+                !$user->entreprise
+                ||
+                $candidature->offre->id_entreprise 
+                !=
+                $user->entreprise->id_entreprise
+            )
+        ){
 
             return response()->json([
-                'message' => 'Vous avez déjà postulé à cette offre.'
-            ], 409);
+                'message'=>'Accès interdit.'
+            ],403);
 
         }
 
 
 
 
-
-        $candidature = Candidature::create($data);
-
-
-
         return response()->json([
-            'message' => 'Candidature créée avec succès.',
-            'data' => $candidature
-        ], 201);
+            'message'=>'Candidature trouvée.',
+            'data'=>$candidature
+        ],200);
 
     }
 
@@ -132,113 +158,58 @@ class CandidatureController extends Controller
 
 
 
+
     /**
-     * Modifier une candidature.
+     * Candidat postule à une offre
      */
-    public function update(UpdateCandidatureRequest $request, $id)
+    public function store(Request $request,$id)
     {
 
-        $candidature = Candidature::where('id_user', auth()->id())
-            ->find($id);
+        $user = auth()->user();
 
 
 
-        if (!$candidature) {
+        if(!$user->isCandidat()){
 
             return response()->json([
-                'message' => 'Candidature introuvable.'
-            ], 404);
+                'message'=>'Seuls les candidats peuvent postuler.'
+            ],403);
 
         }
 
 
 
 
-        $candidature->update(
-            $request->validated()
-        );
-
-
-
-        return response()->json([
-            'message' => 'Candidature modifiée avec succès.',
-            'data' => $candidature
-        ], 200);
-
-    }
-
-
-
-
-
-
-
-
-
-    /**
-     * Supprimer une candidature.
-     */
-    public function destroy($id)
-    {
-
-        $candidature = Candidature::where('id_user', auth()->id())
-            ->find($id);
-
-
-
-        if (!$candidature) {
-
-            return response()->json([
-                'message' => 'Candidature introuvable.'
-            ], 404);
-
-        }
-
-
-
-
-        $candidature->delete();
-
-
-
-        return response()->json([
-            'message' => 'Candidature supprimée avec succès.'
-        ], 200);
-
-    }
-
-
-
-
-
-
-
-
-
-    /**
-     * Entreprise accepte ou refuse une candidature.
-     */
-    public function changeStatut(Request $request, $id)
-    {
-
-
+        // Vérifier existence offre
         $request->validate([
-            'statut' => 'required|in:en_attente,acceptee,refusee'
+
+            'id_offre'=>'nullable|exists:offres,id_offre'
+
         ]);
 
 
 
-        $candidature = Candidature::with('offre.entreprise')
-            ->find($id);
+
+
+        // Empêcher double candidature
+        $existe = Candidature::where(
+            'id_user',
+            $user->id_user
+        )
+        ->where(
+            'id_offre',
+            $id
+        )
+        ->exists();
 
 
 
 
-        if (!$candidature) {
+        if($existe){
 
             return response()->json([
-                'message' => 'Candidature introuvable.'
-            ], 404);
+                'message'=>'Vous avez déjà postulé à cette offre.'
+            ],409);
 
         }
 
@@ -246,16 +217,95 @@ class CandidatureController extends Controller
 
 
 
-        // vérifier que l'entreprise possède l'offre
-        if (
-            $candidature->offre->entreprise->id_user 
-            != auth()->id()
-        ) {
+        $candidature = Candidature::create([
 
+            'id_user'=>$user->id_user,
+
+            'id_offre'=>$id,
+
+            'statut'=>'en_attente',
+
+            'date_candidature'=>now()
+
+        ]);
+
+
+
+
+
+        return response()->json([
+            'message'=>'Candidature créée avec succès.',
+            'data'=>$candidature
+        ],201);
+
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * Entreprise ou Admin change statut
+     */
+    public function changeStatut(Request $request,$id)
+    {
+
+
+        $request->validate([
+
+            'statut'=>'required|in:en_attente,acceptee,refusee'
+
+        ]);
+
+
+
+
+
+        $candidature = Candidature::with('offre')
+            ->find($id);
+
+
+
+
+
+        if(!$candidature){
 
             return response()->json([
-                'message' => 'Vous ne pouvez pas modifier cette candidature.'
-            ], 403);
+                'message'=>'Candidature introuvable.'
+            ],404);
+
+        }
+
+
+
+
+
+        $user = auth()->user();
+
+
+
+
+
+        // Vérification entreprise propriétaire ou admin
+        if(
+            !$user->isAdmin()
+            &&
+            (
+                !$user->entreprise
+                ||
+                $user->entreprise->id_entreprise
+                !=
+                $candidature->offre->id_entreprise
+            )
+        ){
+
+            return response()->json([
+                'message'=>'Action non autorisée.'
+            ],403);
 
         }
 
@@ -265,17 +315,20 @@ class CandidatureController extends Controller
 
 
         $candidature->update([
-            'statut' => $request->statut
+
+            'statut'=>$request->statut
+
         ]);
 
 
 
 
 
+
         return response()->json([
-            'message' => 'Statut modifié avec succès.',
-            'data' => $candidature
-        ], 200);
+            'message'=>'Statut modifié avec succès.',
+            'data'=>$candidature
+        ],200);
 
     }
 
